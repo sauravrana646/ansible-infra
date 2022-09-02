@@ -1,0 +1,7 @@
+- name : Configure basic setup on all nodes
+  hosts : aws_instance
+  gather_facts : no
+  remote_user : ubuntu
+  become : yes
+  roles : 
+  - daffo-ec2-server

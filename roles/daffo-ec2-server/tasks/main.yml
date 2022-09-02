@@ -1,0 +1,23 @@
+---
+# tasks file for daffo-ec2-server
+- name: Install nginx
+  package: 
+    name: nginx
+    state: present
+- name : Start Services
+  service :
+    name : nginx
+    state : stopped
+# - name : Modify conf file
+#   template:
+#     src : templates/nginx.conf.j2
+#     dest : /etc/nginx/nginx.conf
+#   notify : reload_nginx
+# - name: Copy Webiste Config File
+#   copy:
+#     src: templates/
+#     dest: /etc/nginx/site-available/
+#     owner: foo
+#     group: foo
+#     mode: u+rw,g-rx,o-
+  
