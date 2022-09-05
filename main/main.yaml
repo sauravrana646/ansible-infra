@@ -1,7 +1,12 @@
 - name : Configure basic setup on all nodes
-  hosts : aws_instance
+  hosts : "{{ hosts }}"
   gather_facts : no
-  remote_user : ubuntu
+  remote_user : "{{ remote_user }}"
   become : yes
-  roles : 
-  - daffo-ec2-server
+  vars_files:
+  - ./tf-ansible-vars.yml
+  tasks:
+  - name: pinging
+    ping:
+  # roles : 
+  # - daffo-ec2-server
