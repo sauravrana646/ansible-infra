@@ -1,0 +1,6 @@
+filesystem_type : ext4
+mountpoint_path : /mnt/ebs/
+swap_file_path: /swapfile
+swap_block_size: 128M
+swap_count: 2
+

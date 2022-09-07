@@ -1,0 +1,53 @@
+- name : Configure basic setup on all nodes
+  hosts : "{{remote_hosts}}"
+  gather_facts : no
+  remote_user : "{{ remote_ssh_user }}"
+  become : yes
+  vars_files:
+  - ../vars/tf-ansible-vars.yml
+  - ../vars/additional-vars.yml
+  # roles : 
+  # - daffo-ec2-server
+  
+  tasks:
+  - name : List Unmounted Partition
+    shell: lsblk --noheadings --raw -o NAME,SIZE,TYPE,MOUNTPOINT | awk '$1~/^[A-Za-z0-9]+$/  && $2 == "{{additional_ebs_size}}"  && $3=="disk" && $4=="" {print $1}'
+    register: unmounted_disks
+    changed_when: false
+
+  - name: Register Disk Name
+    debug:
+      msg: "Unmounted Disk Name : '{{unmounted_disks.stdout}}'"
+
+  - name: Check correct disk to mount
+    pause:
+      prompt: Please confirm weather the disk listed to mount is correct! Press return to continue running playbook. Press Ctrl+c and then "a" to abort
+  
+  - name: Setting device name as fact for further tasks
+    set_fact: 
+      full_device_name: "/dev/{{unmounted_disks.stdout}}"
+      device_name: "{{unmounted_disks.stdout}}"
+  
+  - name: Display Device Name
+    debug:
+     msg: "Device Name will be : {{full_device_name}}"
+
+  - name: Run further tasks if everything checks out
+    include_tasks:  mount.yml
+    when: (unmounted_disks.stdout | length > 0) and ('"\n" not in unmounted_disks.stdout')
+
+  - name: "Check swap file type"
+    command: file {{ swap_file_path }}
+    register: swapfile
+    changed_when: false
+
+  - name : Setup Swap on the Server
+    include_tasks: swap.yml
+    when: swapfile.stdout.find('swap file') == -1
+
+  - name : Configure Nginx and PHP
+    include_role:
+      name: daffo-ec2-server
+
+
+  

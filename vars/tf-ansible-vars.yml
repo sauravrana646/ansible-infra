@@ -1,0 +1,5 @@
+remote_hosts: tag_ManagedBy_saurav
+aws_region: ap-south-1
+remote_ssh_user : "ubuntu"
+ansible_private_key_file : "~/aws-key/aws.pem"
+additional_ebs_size: 5G

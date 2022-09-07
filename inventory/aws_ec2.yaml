@@ -3,6 +3,7 @@ plugin: amazon.aws.aws_ec2
 aws_profile: 
 regions:
 - ap-south-1
+hostnames: ['dns-name']
 keyed_groups:
 - key: tags
   prefix: tag

@@ -1,4 +1,7 @@
 ---
 # vars file for daffo-ec2-server
 #
-# ansible_private_key_file : ~/aws-key/aws.pem
+dev_username: test_user
+website_name: mysite
+device_name: /dev/xvdh
+

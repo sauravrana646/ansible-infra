@@ -1,23 +1,55 @@
 ---
 # tasks file for daffo-ec2-server
-- name: Install nginx
-  package: 
-    name: nginx
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+  changed_when: false
+
+- name: Creating a user named username on the specified web server.
+  user: 
+    name: "{{ dev_username }}"
     state: present
-- name : Start Services
+    shell: /bin/bash
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: ./ssh-keys/id_rsa
+- name: Copy .ssh/id_rsa from host box to the remote box for user username
+  become: true
+  copy: 
+    remote_src: yes
+    src: /home/{{dev_username}}/ssh-keys/id_rsa.pub
+    dest: /home/{{dev_username}}/.ssh/authorized_keys
+    mode: 0600
+    owner: "{{dev_username}}"
+    group: "{{dev_username}}"
+- name: ansible copy developer ssh-private-key from remote to local.
+  fetch:
+    flat: yes
+    src: "/home/{{dev_username}}/ssh-keys/id_rsa"
+    dest: ../outputs/
+    
+- name: Install packages
+  package: 
+    name: [nginx ,php8.1 ,php8.1-cli ,php8.1-fpm ,php8.1-mysql ,php8.1-zip ,php8.1-gd  ,php8.1-mbstring ,php8.1-curl ,php8.1-xml ,php8.1-bcmath]
+    state: present
+- name : Install additional PHP packages
+  package:
+    name: [php-json, php-pear ,mysql-client]
+- name : Start Nginx Services
   service :
     name : nginx
-    state : stopped
-# - name : Modify conf file
-#   template:
-#     src : templates/nginx.conf.j2
-#     dest : /etc/nginx/nginx.conf
-#   notify : reload_nginx
-# - name: Copy Webiste Config File
-#   copy:
-#     src: templates/
-#     dest: /etc/nginx/site-available/
-#     owner: foo
-#     group: foo
-#     mode: u+rw,g-rx,o-
+    state : started
+- name: Start PHP8.1 FPM 
+  service:
+    name: php8.1-fpm
+    state: started
+- name : Modify conf file
+  template:
+    src : templates/nginx.conf.j2
+    dest : /etc/nginx/nginx.conf
+  notify : reload_nginx
+- name: Copy Webiste Config File
+  template:
+    src: templates/site.conf.j2
+    dest: /etc/nginx/sites-available/{{website_name}}.conf
+  notify: reload_nginx
   

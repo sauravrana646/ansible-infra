@@ -1,0 +1,24 @@
+# set variables in the vars/addtional-vars.yml for these tasks
+
+- name : Create a filesystem on the device
+  filesystem:
+    fstype: "{{ filesystem_type }}"
+    dev: "{{full_device_name}}"
+- name : Create a directory for mountpoint
+  file:
+    path: "{{ mountpoint_path }}"
+    state: directory
+- name: refresh metadata
+  setup: {}
+
+- name: Check UUID
+  debug:
+    msg : "{{ hostvars[inventory_hostname]['ansible_devices'][device_name]['links']['uuids'] }}"
+- name : Mount the device at mountpoint
+  ansible.posix.mount:
+    path: "{{ mountpoint_path }}"
+    src: "UUID={{ hostvars[inventory_hostname]['ansible_devices'][device_name]['links']['uuids'][0] }}"
+    fstype: "{{ filesystem_type }}"
+    state: mounted
+
+
