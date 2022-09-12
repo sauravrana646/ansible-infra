@@ -1,7 +1,5 @@
 ---
 # vars file for daffo-ec2-server
 #
-dev_username: test_user
+dev_username: dev_user
 website_name: mysite
-device_name: /dev/xvdh
-
